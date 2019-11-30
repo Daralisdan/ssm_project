@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+	<!-- AOP的配置 ,事物的配置 -->
+
+	<!-- 注册事物管理器 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+
+	<!-- 注册事物通知 -->
+	<tx:advice id="txAdvice"
+		transaction-manager="transactionManager">
+		<!-- 事物属性 -->
+		<tx:attributes>
+			<!-- 事物方法 因为切入点是service，所以使用的方法名应该是service中的方法名 add.... -->
+			<tx:method name="add*" isolation="DEFAULT"
+				propagation="REQUIRED" />
+		</tx:attributes>
+	</tx:advice>
+
+	<!--AOP配置 -->
+	<aop:config>
+		<aop:pointcut
+			expression="execution(* *..service.*.*(..))" id="studentPointcut" />
+		<aop:advisor advice-ref="txAdvice"
+			pointcut-ref="studentPointcut" />
+	</aop:config>
+
+</beans>
